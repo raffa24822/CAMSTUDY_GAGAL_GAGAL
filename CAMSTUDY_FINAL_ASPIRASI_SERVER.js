@@ -98,7 +98,21 @@ function persist() {
 app.get('/health', (_req, res) => { res.setHeader('Cache-Control','no-store'); res.json({ status: 'ok', service: 'CAMSTUDY', time: new Date().toISOString() }); });
 app.get('/', (_req, res) => {
   res.setHeader('Cache-Control', 'no-store');
-  res.sendFile(path.join(__dirname, 'FINAL_FILE_CAMSTUDY.html'));
+  // Support both the current packaged HTML name and the legacy deployment name.
+  // The previous server always requested FINAL_FILE_CAMSTUDY.html, which is not
+  // present in the current ZIP and caused the generic server-error JSON response.
+  const candidates = ['CAMSTUDY_FINAL_ASPIRASI.html', 'FINAL_FILE_CAMSTUDY.html'];
+  const htmlFile = candidates.map(name => path.join(__dirname, name)).find(file => fs.existsSync(file));
+  if (!htmlFile) {
+    console.error('File halaman CAMSTUDY tidak ditemukan. File yang tersedia:', fs.readdirSync(__dirname));
+    return sendError(res, 500, 'File halaman CAMSTUDY tidak ditemukan di server. Pastikan file HTML ikut di-deploy.');
+  }
+  return res.sendFile(htmlFile, error => {
+    if (error && !res.headersSent) {
+      console.error('Gagal membuka halaman CAMSTUDY:', error.message);
+      return sendError(res, error.statusCode || 500, 'Halaman CAMSTUDY gagal dibuka oleh server.');
+    }
+  });
 });
 app.post('/asts_kelas10/reset-users.json', auth, async (req, res) => {
   if (!req.body || req.body.confirm !== 'RESET_ALL_STUDENT_ACCOUNTS') {
