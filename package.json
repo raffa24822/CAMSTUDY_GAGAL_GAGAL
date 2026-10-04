@@ -1,11 +1,11 @@
 {
-  "name": "camstudy-final-aspirasi",
+  "name": "final-camstudy-code-website",
   "version": "1.0.0",
   "private": true,
   "description": "CAMSTUDY educational portal server",
-  "main": "CAMSTUDY_FINAL_ASPIRASI_SERVER.js",
+  "main": "FINAL_CAMSTUDY_SERVER.js",
   "scripts": {
-    "start": "node CAMSTUDY_FINAL_ASPIRASI_SERVER.js"
+    "start": "node FINAL_CAMSTUDY_SERVER.js"
   },
   "engines": {
     "node": ">=18"
