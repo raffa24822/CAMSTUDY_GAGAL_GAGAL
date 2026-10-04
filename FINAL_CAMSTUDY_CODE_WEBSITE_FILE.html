@@ -517,6 +517,19 @@
 .semester-quiz-modal{max-width:560px!important} .semester-quiz-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin-top:16px}
 .semester-quiz-choice{padding:15px;border:1px solid var(--glass-border);border-radius:12px;background:var(--glass-card);color:var(--text-main);cursor:pointer;text-align:left;font-weight:700}
 .semester-quiz-choice:hover{border-color:var(--primary);transform:translateY(-2px)}
+
+/* CAMSTUDY medal reward animation: visible after every completed quiz */
+.medal-levelup-card{position:relative;overflow:hidden;text-align:center!important;border:2px solid #f5c542!important;background:linear-gradient(145deg,#fffdf2,#fff7d6 48%,#ffffff)!important;color:#263244!important;box-shadow:0 18px 70px rgba(245,158,11,.35)!important;animation:camMedalCardIn .65s cubic-bezier(.18,.89,.32,1.28) both}
+.medal-levelup-card .medal-burst{display:grid;place-items:center;width:126px;height:126px;margin:4px auto 16px;border-radius:50%;font-size:76px;background:radial-gradient(circle,#fff 0%,#ffe9a3 54%,#fbbf24 100%);box-shadow:0 0 0 8px #fbbf2433,0 0 42px #f59e0b55;animation:camMedalSpin 1.15s cubic-bezier(.2,.8,.2,1) both}
+.medal-levelup-card .medal-levelup-kicker{font-weight:900;letter-spacing:2px;color:#9a6700;font-size:12px}
+.medal-levelup-card #medal-levelup-title{color:#854d0e;font-weight:900;font-size:clamp(23px,5vw,32px);margin:8px 0}
+.medal-levelup-card #medal-levelup-desc{color:#374151;line-height:1.65;font-weight:600}
+@keyframes camMedalCardIn{0%{opacity:0;transform:translateY(28px) scale(.82)}70%{opacity:1;transform:translateY(-4px) scale(1.025)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes camMedalSpin{0%{opacity:0;transform:rotate(-35deg) scale(.25)}65%{opacity:1;transform:rotate(12deg) scale(1.14)}100%{opacity:1;transform:rotate(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.medal-levelup-card,.medal-levelup-card .medal-burst{animation:none!important}}
+
+/* Background logo rekap nilai: kotak berlapis yang tampak jelas */
+.rekap-nilai-logo,.grade-recap-logo,.student-results-logo{display:inline-grid!important;place-items:center!important;background:#dbeafe!important;padding:8px!important;border:7px solid #64748b!important;box-shadow:0 0 0 5px #334155,0 8px 20px #0002!important;border-radius:12px!important;object-fit:contain!important}
 </style></head>
 <body>
 <noscript><div style="position:fixed;inset:0;display:grid;place-items:center;background:#0b0f19;color:#fff;padding:30px;text-align:center;z-index:99999;font-family:Arial,sans-serif">JavaScript harus diaktifkan untuk menjalankan CAMSTUDY.</div></noscript>
@@ -554,7 +567,7 @@
             </div>
             
         <h1 style="font-size: 28px; margin-top: 6px;">Belajar Hari Ini, Raih Mimpi Esok</h1>
-            <p style="margin-top: 4px;">Halo, calon hebat! Pilih akses siswa untuk belajar, atau akses guru untuk mengelola materi dan soal.</p><details style="margin:10px 0;text-align:left;font-size:12px;color:var(--text-muted)"><summary style="cursor:pointer;font-weight:700">Panduan singkat masuk (bisa dibuka kapan saja)</summary><p style="padding-top:8px;line-height:1.7">Siswa: pilih avatar dan gunakan nama panggilan atau nama samaran saja. Jangan gunakan nama asli atau nama lengkap, dan jangan masukkan informasi pribadi. Lalu tekan Masuk. Guru: pilih Dashboard Guru, masukkan nama pengguna dan password yang dikonfigurasi pengelola.</p></details>
+            <p style="margin-top: 4px;">Halo, calon hebat! Pilih akses siswa untuk belajar, atau akses guru untuk mengelola materi dan soal.</p><details style="margin:10px 0;text-align:left;font-size:12px;color:var(--text-muted)"><summary style="cursor:pointer;font-weight:700">Panduan singkat masuk (bisa dibuka kapan saja)</summary><p style="padding-top:8px;line-height:1.7">Siswa: masukkan username (JANGAN MEMASUKKAN NAMA LENGKAP). Disarankan menggunakan nama panggilan atau nama samaran. Jangan masukkan informasi pribadi, lalu tekan Masuk. Guru: pilih Dashboard Guru, masukkan nama pengguna dan password yang dikonfigurasi pengelola.</p></details>
         </div>
         <div style="text-align:center;margin:0 0 16px;color:var(--text-muted);font-size:12px"><i class="fa-solid fa-cloud-check"></i> Koneksi server mengikuti link portal secara otomatis</div>
         <div class="role-selector">
@@ -577,9 +590,9 @@
                 <div class="avatar-opt" onclick="selectAvatar('🐉', this)">🐉</div>
                 <div class="avatar-opt" onclick="selectAvatar('🎨', this)">🎨</div><div class="avatar-opt" onclick="selectAvatar('🐼', this)">🐼</div><div class="avatar-opt" onclick="selectAvatar('🐯', this)">🐯</div><div class="avatar-opt" onclick="selectAvatar('🐸', this)">🐸</div><div class="avatar-opt" onclick="selectAvatar('🦄', this)">🦄</div><div class="avatar-opt" onclick="selectAvatar('🦋', this)">🦋</div><div class="avatar-opt" onclick="selectAvatar('🌙', this)">🌙</div><div class="avatar-opt" onclick="selectAvatar('🌈', this)">🌈</div><div class="avatar-opt" onclick="selectAvatar('🐺', this)">🐺</div><div class="avatar-opt" onclick="selectAvatar('🐧', this)">🐧</div>
             </div>
-            <label style="font-size: 13px; font-weight: 700; color: var(--text-muted);">Nama Panggilan / Samaran</label>
-            <input type="text" id="input-nama-siswa" placeholder="Masukkan nama panggilan atau samaran" autocomplete="off" aria-describedby="student-name-privacy-note">
-            <p id="student-name-privacy-note" style="font-size:12px;line-height:1.6;color:#b45309;background:rgba(251,191,36,.13);border:1px solid rgba(217,119,6,.35);border-radius:10px;padding:10px;margin:8px 0 12px"><b>Catatan privasi:</b> Jangan gunakan nama asli atau nama lengkap. Gunakan nama panggilan/nama samaran dan jangan masukkan informasi pribadi.</p>
+            <label style="font-size: 13px; font-weight: 700; color: var(--text-muted);">Username Siswa</label>
+            <input type="text" id="input-nama-siswa" placeholder="Masukkan username siswa" autocomplete="off" aria-describedby="student-name-privacy-note">
+            <p id="student-name-privacy-note" style="font-size:12px;line-height:1.6;color:#b45309;background:rgba(251,191,36,.13);border:1px solid rgba(217,119,6,.35);border-radius:10px;padding:10px;margin:8px 0 12px">Siswa: masukkan username (JANGAN MEMASUKKAN NAMA LENGKAP). Disarankan menggunakan nama panggilan atau nama samaran.</p>
             <button class="btn" style="width: 100%;" onclick="loginSiswa()">
                 Masuk ke Dashboard Ujian <i class="fa-solid fa-arrow-right"></i>
             </button>
@@ -1493,23 +1506,39 @@ let audioCtx = null;
         return { title: `Level ${level} • ${done ? tier.title : 'Siswa Pemula'}`, badgeClass: done ? tier.badgeClass : 'badge-secondary', icon: done ? tier.icon : '🎖️', medal: done ? tier.medal : 'Belum ada medali', progress: `${done} soal selesai · ${nextMilestone - done} soal menuju level berikutnya`, level, questions: done };
     }
     function showMedalLevelUp(rankInfo) {
+        const info = rankInfo || getRankInfo(Number(currentStudent && currentStudent.completedQuestionCount) || 0);
         let modal = document.getElementById('medal-levelup-modal');
         if (!modal) {
-            modal = document.createElement('div'); modal.id='medal-levelup-modal'; modal.className='modal-overlay'; modal.style.zIndex='100001';
-            modal.innerHTML = `<div class="modal-body medal-levelup-card"><div class="medal-burst" aria-hidden="true">🏅</div><div class="medal-levelup-kicker">PENCAPAIAN BARU</div><h2 id="medal-levelup-title">LEVEL NAIK!</h2><p id="medal-levelup-desc"></p><button class="btn btn-success" style="width:100%;margin-top:18px" onclick="document.getElementById('medal-levelup-modal').classList.remove('active')">Lanjutkan</button></div>`;
+            modal = document.createElement('div');
+            modal.id = 'medal-levelup-modal';
+            modal.className = 'modal-overlay';
+            modal.style.zIndex = '100001';
+            modal.innerHTML = `<div class="modal-body medal-levelup-card" role="dialog" aria-modal="true" aria-labelledby="medal-levelup-title">
+                <div class="medal-burst" aria-hidden="true">🏅</div>
+                <div class="medal-levelup-kicker">QUIZ SELESAI • HADIAH UNTUKMU</div>
+                <h2 id="medal-levelup-title">MEDALI BERHASIL DIDAPATKAN!</h2>
+                <p id="medal-levelup-desc"></p>
+                <button class="btn btn-success" style="width:100%;margin-top:18px" onclick="document.getElementById('medal-levelup-modal').classList.remove('active')">Ambil Medali & Lanjutkan</button>
+            </div>`;
             document.body.appendChild(modal);
         }
-        document.getElementById('medal-levelup-title').textContent = `MEDALI BERHASIL DIDAPATKAN!`;
-        const kicker=modal.querySelector('.medal-levelup-kicker');if(kicker)kicker.textContent='QUIZ SELESAI • PENCAPAIAN SISWA';
-        document.getElementById('medal-levelup-desc').textContent = `${rankInfo.icon} ${rankInfo.title} — ${rankInfo.medal}. Kamu telah menyelesaikan ${rankInfo.questions} soal!`;
+        const title = document.getElementById('medal-levelup-title');
+        const desc = document.getElementById('medal-levelup-desc');
+        if (title) title.textContent = 'SELAMAT! KAMU MENDAPAT MEDALI!';
+        const kicker = modal.querySelector('.medal-levelup-kicker');
+        if (kicker) kicker.textContent = 'QUIZ SELESAI • HADIAH UNTUKMU';
+        if (desc) desc.textContent = `${info.icon || '🏅'} ${info.title || 'Pelajar Aktif'} — ${info.medal || 'Medali Partisipasi'}. Kamu telah menyelesaikan quiz dan total ${Number(info.questions) || 0} soal!`;
         modal.classList.remove('active');
-        const burst=modal.querySelector('.medal-burst');if(burst){burst.style.animation='none';void burst.offsetWidth;burst.style.animation='';}
-        void modal.offsetWidth;modal.classList.add('active');
-        try { if (typeof confetti === 'function') confetti({particleCount:100, spread:75, origin:{y:.55}}); } catch (_) {}
+        const burst = modal.querySelector('.medal-burst');
+        if (burst) { burst.style.animation = 'none'; void burst.offsetWidth; burst.style.animation = ''; }
+        void modal.offsetWidth;
+        modal.classList.add('active');
+        try { if (typeof confetti === 'function') confetti({ particleCount: 140, spread: 85, origin: { y: .55 } }); } catch (_) {}
     }
+
     async function loginSiswa() {
         const name=document.getElementById('input-nama-siswa').value.trim();
-        if(!name)return alert('Silakan masukkan nama panggilan atau nama samaran.');
+        if(!name)return alert('Silakan masukkan username siswa. Jangan gunakan nama lengkap; disarankan memakai nama panggilan atau samaran.');
         playClickSound();
         let user=studentAccounts.find(u=>String(u.name).trim().toLowerCase()===name.toLowerCase());
         if(!user){
@@ -2570,10 +2599,10 @@ let audioCtx = null;
       const rows=[...results].sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'id',{sensitivity:'base'}) || String(a.subject||'').localeCompare(String(b.subject||''),'id',{sensitivity:'base'}));
       const canvas=document.createElement('canvas'),w=1400,rowH=54,top=230;canvas.width=w;canvas.height=top+rows.length*rowH+70;
       const c=canvas.getContext('2d');c.fillStyle='#f8fafc';c.fillRect(0,0,w,canvas.height);c.fillStyle='#0f172a';c.fillRect(0,0,w,155);
-      c.fillStyle='#334155';c.fillRect(38,17,96,96);c.fillStyle='#64748b';c.fillRect(31,24,96,96);c.fillStyle='#ffffff';c.fillRect(45,17,82,82);const logoImg=new Image();logoImg.onload=()=>{try{c.drawImage(logoImg,52,24,68,68)}catch(e){}};logoImg.src=CAMSTUDY_LOGO_DATA;c.fillStyle='#fff';c.font='bold 40px Arial';c.fillText('CAMSTUDY',160,58);c.font='bold 28px Arial';c.fillText('REKAP NILAI SISWA',160,100);c.font='17px Arial';c.fillText('Tanggal unduh: '+new Date().toLocaleString('id-ID'),160,133);
+      c.fillStyle='#dbeafe';c.fillRect(25,12,116,116);c.fillStyle='#334155';c.fillRect(38,25,96,96);c.fillStyle='#64748b';c.fillRect(31,32,96,96);c.fillStyle='#ffffff';c.fillRect(45,25,82,82);const logoImg=new Image();logoImg.onload=()=>{try{c.drawImage(logoImg,52,32,68,68)}catch(e){}};logoImg.src=CAMSTUDY_LOGO_DATA;c.fillStyle='#fff';c.font='bold 40px Arial';c.fillText('CAMSTUDY',160,58);c.font='bold 28px Arial';c.fillText('REKAP NILAI SISWA',160,100);c.font='17px Arial';c.fillText('Tanggal unduh: '+new Date().toLocaleString('id-ID'),160,133);
       c.fillStyle='#1e293b';c.font='bold 19px Arial';const headers=['No','Nama Siswa','Mata Pelajaran','Nilai','Tanggal Pengerjaan','Jam'];const xs=[50,125,430,900,1010,1240];headers.forEach((h,i)=>c.fillText(h,xs[i],205));
       rows.forEach((r,i)=>{const y=top+i*rowH;c.fillStyle=i%2?'#e2e8f0':'#fff';c.fillRect(35,y,w-70,rowH);c.fillStyle='#0f172a';c.font='18px Arial';const dt=r.timestamp?new Date(Number(r.timestamp)):null;[String(i+1),String(r.name||'').slice(0,26),String(r.subject||'').slice(0,28),String(r.score??''),r.date|| (dt?dt.toLocaleDateString('id-ID'):'-'),r.time||(dt?dt.toLocaleTimeString('id-ID'):'-')].forEach((v,j)=>c.fillText(v,xs[j],y+33));});
-      c.fillStyle='#64748b';c.font='15px Arial';c.fillText('Dokumen rekap resmi • CAMSTUDY',50,canvas.height-25);const a=document.createElement('a');a.download='Rekap Nilai.png';const saveImage=()=>{a.href=canvas.toDataURL('image/png');a.click();};const logo=new Image();logo.onload=()=>{try{c.fillStyle='#334155';c.fillRect(38,17,96,96);c.fillStyle='#64748b';c.fillRect(31,24,96,96);c.fillStyle='#ffffff';c.fillRect(45,17,82,82);c.drawImage(logo,52,24,68,68)}catch(e){}saveImage();};logo.onerror=saveImage;logo.src=CAMSTUDY_LOGO_DATA;
+      c.fillStyle='#64748b';c.font='15px Arial';c.fillText('Dokumen rekap resmi • CAMSTUDY',50,canvas.height-25);const a=document.createElement('a');a.download='Rekap Nilai.png';const saveImage=()=>{a.href=canvas.toDataURL('image/png');a.click();};const logo=new Image();logo.onload=()=>{try{c.fillStyle='#dbeafe';c.fillRect(25,12,116,116);c.fillStyle='#334155';c.fillRect(38,25,96,96);c.fillStyle='#64748b';c.fillRect(31,32,96,96);c.fillStyle='#ffffff';c.fillRect(45,25,82,82);c.drawImage(logo,52,32,68,68)}catch(e){}saveImage();};logo.onerror=saveImage;logo.src=CAMSTUDY_LOGO_DATA;
     }
     async function resetResults() {
       if(!confirm('Hapus seluruh rekap nilai dari perangkat ini dan server bersama? Akun siswa tetap dipertahankan.')) return;
@@ -2632,7 +2661,7 @@ let audioCtx = null;
       try{if(sessionStorage.getItem('camstudy_guide_seen_session'))return;if(document.getElementById('camstudy-first-guide-modal'))return;
       const modal=document.createElement('div');modal.id='camstudy-first-guide-modal';modal.className='modal-overlay active';modal.style.zIndex='100002';
       const logo=document.querySelector('.camstudy-brand-logo')?.src||'';
-      modal.innerHTML=`<div class="modal-body" role="dialog" aria-modal="true" aria-labelledby="camstudy-guide-title" style="max-width:500px"><div style="text-align:center;margin-bottom:12px"><img src="${logo}" alt="Logo CAMSTUDY" style="width:70px;height:70px;object-fit:contain;background:#fff;border-radius:14px;padding:4px"></div><h3 id="camstudy-guide-title" style="text-align:center">Panduan Singkat CAMSTUDY</h3><p style="line-height:1.7"><b>Siswa:</b> pilih avatar dan gunakan nama panggilan atau nama samaran saja. Jangan gunakan nama asli/nama lengkap atau memasukkan informasi pribadi. Lalu tekan Masuk. <b>Guru:</b> pilih Dashboard Guru dan masukkan nama pengguna serta password yang dikelola di server. Jangan bagikan password guru.</p><button class="btn btn-primary" style="width:100%" id="camstudy-guide-close">Mengerti, mulai</button></div>`;
+      modal.innerHTML=`<div class="modal-body" role="dialog" aria-modal="true" aria-labelledby="camstudy-guide-title" style="max-width:500px"><div style="text-align:center;margin-bottom:12px"><img src="${logo}" alt="Logo CAMSTUDY" style="width:70px;height:70px;object-fit:contain;background:#fff;border-radius:14px;padding:4px"></div><h3 id="camstudy-guide-title" style="text-align:center">Panduan Singkat CAMSTUDY</h3><p style="line-height:1.7">Siswa: masukkan username (JANGAN MEMASUKKAN NAMA LENGKAP). Disarankan menggunakan nama panggilan atau nama samaran. Jangan masukkan informasi pribadi, lalu tekan Masuk. Guru: pilih Dashboard Guru dan masukkan nama pengguna serta password yang dikelola di server. Jangan bagikan password guru.</p><button class="btn btn-primary" style="width:100%" id="camstudy-guide-close">Mengerti, mulai</button></div>`;
       document.body.appendChild(modal);modal.querySelector('#camstudy-guide-close').addEventListener('click',()=>{modal.remove();sessionStorage.setItem('camstudy_guide_seen_session','1')});
       }catch(e){console.warn('Panduan CAMSTUDY:',e)}
     }

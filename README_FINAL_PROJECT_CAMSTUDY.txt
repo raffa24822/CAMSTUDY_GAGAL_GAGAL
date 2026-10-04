@@ -30,4 +30,12 @@ PENTING
 
 
 CATATAN PRIVASI LOGIN SISWA
-Gunakan nama panggilan/nama samaran; jangan masukkan nama asli/nama lengkap atau informasi pribadi. Catatan ini mengurangi informasi identitas yang dimasukkan, tetapi tidak menggantikan pengamanan akses data pada server.
+Siswa diminta memasukkan username, bukan nama lengkap. Disarankan memakai nama panggilan atau samaran dan tidak memasukkan informasi pribadi. Catatan ini tidak menggantikan pengamanan akses data pada server.
+
+FITUR REVISI MEDALI: Setelah siswa menyelesaikan setiap quiz, popup hadiah medali animasi akan tampil di atas halaman hasil, dengan efek medali berputar/muncul dan confetti. Tampilan ini menunjukkan tingkatan/medali berdasarkan jumlah soal yang telah diselesaikan.
+
+REVISI TERGABUNG:
+- Tutorial siswa menggunakan username/nama panggilan atau samaran dan memperingatkan agar tidak memasukkan nama lengkap.
+- Popup hadiah medali animasi dan confetti setelah quiz selesai.
+- Latar kotak berlapis yang lebih jelas di belakang logo pada gambar ekspor Rekap Nilai Siswa.
+Catatan: pemeriksaan file/ZIP tidak menggantikan uji langsung di browser dan server hosting.
