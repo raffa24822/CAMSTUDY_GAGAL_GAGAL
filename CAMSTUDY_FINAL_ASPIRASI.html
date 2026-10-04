@@ -763,7 +763,7 @@
   <h3>📚 Tambahkan Materi Pelajaran</h3><p style="color:var(--text-muted)">Materi yang disimpan akan langsung tersedia di dashboard siswa sesuai kelas dan semester.</p>
   <div class="form-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
    <div><label>Mata pelajaran</label><select id="material-subject"></select></div>
-   <div><label>Kelas & semester</label><select id="material-semester"><option value="kelas10_s1">LATIHAN • KELAS 10 SEMESTER 1</option><option value="kelas10_s2">LATIHAN • KELAS 10 SEMESTER 2</option><option value="kelas11_s1">LATIHAN • KELAS 11 SEMESTER 1</option><option value="kelas11_s2">LATIHAN • KELAS 11 SEMESTER 2</option><option value="kelas12_s1">LATIHAN • KELAS 12 SEMESTER 1</option><option value="kelas12_s2">LATIHAN • KELAS 12 SEMESTER 2</option></select></div>
+   <div><label>Kelas & semester</label><select id="material-semester"><option value="kelas10_s1">MATERI • KELAS 10 SEMESTER 1</option><option value="kelas10_s2">MATERI • KELAS 10 SEMESTER 2</option><option value="kelas11_s1">MATERI • KELAS 11 SEMESTER 1</option><option value="kelas11_s2">MATERI • KELAS 11 SEMESTER 2</option><option value="kelas12_s1">MATERI • KELAS 12 SEMESTER 1</option><option value="kelas12_s2">MATERI • KELAS 12 SEMESTER 2</option></select></div>
    <div><label>Judul materi</label><input id="material-title" placeholder="Contoh: Dasar-Dasar Informatika"></div>
    <div><label>Nama guru</label><input id="material-teacher" placeholder="Nama guru"></div>
    <div><label>Upload dokumen/gambar (opsional)</label><input id="material-file" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.webp"></div>
@@ -826,6 +826,7 @@
                             <th>Status Pengerjaan & Tab Out</th>
                             <th>Tingkatan Siswa</th>
                             <th>Medali</th>
+                            <th>Rekap Absensi</th>
                             <th>Total Pelanggaran</th>
                         </tr>
                     </thead>
@@ -898,7 +899,7 @@
         <label style="font-size: 13px; font-weight: 700;">Durasi Waktu (Menit)</label>
         <input type="number" id="new-subj-duration" value="45" min="5" max="180">
         <label style="font-size: 13px; font-weight: 700;">Ikon</label>
-        <select id="new-subj-icon">
+        <div style="display:flex;align-items:center;gap:10px"><span id="new-subj-icon-preview" class="subject-icon" style="width:42px;height:42px;flex:0 0 42px;margin:0"><i class="fa-solid fa-book"></i></span><select id="new-subj-icon" onchange="updateSubjectIconPreview()" style="flex:1">
             <option value="fa-code">💻 Informatika / Pemrograman</option>
             <option value="fa-gears">⚙️ Kejuruan / Teknik</option>
             <option value="fa-calculator">🧮 Matematika</option>
@@ -1499,7 +1500,9 @@ let audioCtx = null;
         }
         document.getElementById('medal-levelup-title').textContent = `LEVEL ${rankInfo.level} TERCAPAI!`;
         document.getElementById('medal-levelup-desc').textContent = `${rankInfo.icon} ${rankInfo.title} — ${rankInfo.medal}. Kamu telah menyelesaikan ${rankInfo.questions} soal!`;
-        modal.classList.add('active');
+        modal.classList.remove('active');
+        const burst=modal.querySelector('.medal-burst');if(burst){burst.style.animation='none';void burst.offsetWidth;burst.style.animation='';}
+        void modal.offsetWidth;modal.classList.add('active');
         try { if (typeof confetti === 'function') confetti({particleCount:100, spread:75, origin:{y:.55}}); } catch (_) {}
     }
     async function loginSiswa() {
@@ -1513,7 +1516,7 @@ let audioCtx = null;
         }
         // PIN lama dihapus dari alur login; siswa cukup memakai nama.
         if(user.pin!==undefined) delete user.pin;
-        user.isOnline=true;user.avatar=user.avatar||selectedAvatar;user.readiness='Siap Mengerjakan';user.updatedAt=Date.now();
+        user.isOnline=true;user.avatar=user.avatar||selectedAvatar;user.readiness='Siap Mengerjakan';user.updatedAt=Date.now();const attendanceDay=new Date().toLocaleDateString('en-CA');user.attendanceDates=Array.isArray(user.attendanceDates)?user.attendanceDates:[];if(!user.attendanceDates.includes(attendanceDay))user.attendanceDates.push(attendanceDay);user.attendanceDates=user.attendanceDates.slice(-180);
         currentStudent=user;currentTeacher=null;currentStudent.lastSeen=Date.now();
         sessionStorage.setItem('asts_active_role','siswa');sessionStorage.setItem('asts_active_student_name',user.name);sessionStorage.removeItem('asts_active_teacher_username');saveUsers();
         // Push akun sekarang juga, bukan menunggu antrean/polling berikutnya. Tetap izinkan masuk jika server sedang bermasalah.
@@ -1715,7 +1718,7 @@ let audioCtx = null;
         currentStudent.completedQuizCount = Number(currentStudent.completedQuizCount ?? 0) + 1;
         const oldLevel = Math.floor(questionsBefore / 20) + 1;
         const newLevel = Math.floor(currentStudent.completedQuestionCount / 20) + 1;
-        const didLevelUp = newLevel > oldLevel;
+        const didLevelUp = newLevel > oldLevel || (questionsBefore < 20 && currentStudent.completedQuestionCount >= 20);
         currentStudent.readiness = 'Selesai mengerjakan';
         saveUsers();
         const examAnswerSnapshot = examQuestions.map((q, idx) => ({
@@ -2029,7 +2032,7 @@ let audioCtx = null;
         const body = document.getElementById('table-monitor-body');
         body.innerHTML = '';
         if (studentAccounts.length === 0) {
-            body.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Belum ada siswa yang login.</td></tr>`;
+            body.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">Belum ada siswa yang login.</td></tr>`;
             return;
         }
         studentAccounts.forEach(u => {
@@ -2053,6 +2056,7 @@ let audioCtx = null;
                 </td>
                 <td><span class="badge ${rank.badgeClass}">${rank.icon} ${rank.title}</span></td>
                 <td><strong>${rank.medal}</strong></td>
+                <td><span class="badge badge-primary">${Array.isArray(u.attendanceDates)?u.attendanceDates.length:0} hari hadir</span><br><small>${Array.isArray(u.attendanceDates)&&u.attendanceDates.length?'Terakhir: '+u.attendanceDates[u.attendanceDates.length-1]:'Belum tercatat'}</small></td>
                 <td>
                     ${totalV > 0 ? `<span class="badge badge-danger"><i class="fa-solid fa-triangle-exclamation"></i> ${totalV}x Out Tab</span>` : `<span class="badge badge-success">0 (Bersih)</span>`}
                 </td>
@@ -2082,10 +2086,11 @@ let audioCtx = null;
     function renderIconSelectOptions(){
       const select=document.getElementById('new-subj-icon');if(!select)return;
       const choices=[['fa-language','Bahasa Inggris — Translate'],['fa-book-open','Bahasa Indonesia — Buku'],['fa-laptop','Informatika / Komputer'],['fa-calculator','Matematika — Kalkulator'],['fa-flask','IPA / Laboratorium'],['fa-atom','Fisika'],['fa-vial','Kimia'],['fa-dna','Biologi'],['fa-landmark','Sejarah'],['fa-earth-asia','Geografi'],['fa-chart-line','Ekonomi / Statistik'],['fa-scale-balanced','PPKn / Hukum'],['fa-flag','Pancasila'],['fa-book-bible','Pendidikan Agama'],['fa-palette','Seni Budaya'],['fa-music','Seni Musik'],['fa-person-running','PJOK / Olahraga'],['fa-code','Pemrograman'],['fa-network-wired','Jaringan Komputer'],['fa-gears','Teknik / Kejuruan'],['fa-screwdriver-wrench','Praktik / Bengkel'],['fa-briefcase','Bisnis / Manajemen'],['fa-coins','Akuntansi / Keuangan'],['fa-comments','Komunikasi'],['fa-lightbulb','Proyek / Kreativitas'],['fa-graduation-cap','Akademik / Ujian'],['fa-microscope','Penelitian'],['fa-leaf','Lingkungan'],['fa-water','Kelautan / Hidrologi'],['fa-mountain-sun','Geologi'],['fa-star','Lainnya']];
-      const old=select.value;select.innerHTML=choices.map(([v,label])=>`<option value="${v}">${label}</option>`).join('');if(choices.some(x=>x[0]===old))select.value=old;
+      const old=select.value;select.innerHTML=choices.map(([v,label])=>`<option value="${v}">▣ ${label}</option>`).join('');if(choices.some(x=>x[0]===old))select.value=old;updateSubjectIconPreview();
     }
-    function openModalAddSubject() { renderIconSelectOptions(); editingSubjectId=null; document.querySelector('#modal-add-subject h3').innerHTML='<i class="fa-solid fa-folder-plus"></i> Tambahkan Mata Pelajaran'; document.getElementById('new-subj-name').value='';document.getElementById('new-subj-desc').value='';document.getElementById('new-subj-duration').value=45;document.getElementById('new-subj-icon').value='fa-book';document.getElementById('modal-add-subject').classList.add('active'); }
-    function editSubject(id) { renderIconSelectOptions(); const s=subjects.find(x=>x.id===id);if(!s)return;editingSubjectId=id;document.querySelector('#modal-add-subject h3').innerHTML='<i class="fa-solid fa-pen-to-square"></i> Edit Mata Pelajaran';document.getElementById('new-subj-name').value=s.name||'';document.getElementById('new-subj-desc').value=s.desc||'';document.getElementById('new-subj-duration').value=s.duration||45;document.getElementById('new-subj-icon').value=s.icon||'fa-book';document.getElementById('modal-add-subject').classList.add('active'); }
+    function updateSubjectIconPreview(){const e=document.getElementById('new-subj-icon-preview'),s=document.getElementById('new-subj-icon');if(e&&s)e.innerHTML='<i class="fa-solid '+String(s.value||'fa-book').replace(/[^a-z0-9-]/gi,'')+'"></i>'; }
+    function openModalAddSubject() { renderIconSelectOptions(); editingSubjectId=null; document.querySelector('#modal-add-subject h3').innerHTML='<i class="fa-solid fa-folder-plus"></i> Tambahkan Mata Pelajaran'; document.getElementById('new-subj-name').value='';document.getElementById('new-subj-desc').value='';document.getElementById('new-subj-duration').value=45;document.getElementById('new-subj-icon').value='fa-book';updateSubjectIconPreview();document.getElementById('modal-add-subject').classList.add('active'); }
+    function editSubject(id) { renderIconSelectOptions(); const s=subjects.find(x=>x.id===id);if(!s)return;editingSubjectId=id;document.querySelector('#modal-add-subject h3').innerHTML='<i class="fa-solid fa-pen-to-square"></i> Edit Mata Pelajaran';document.getElementById('new-subj-name').value=s.name||'';document.getElementById('new-subj-desc').value=s.desc||'';document.getElementById('new-subj-duration').value=s.duration||45;document.getElementById('new-subj-icon').value=s.icon||'fa-book';updateSubjectIconPreview();document.getElementById('modal-add-subject').classList.add('active'); }
     function closeModalAddSubject() { document.getElementById('modal-add-subject').classList.remove('active'); editingSubjectId=null; }
     function saveSubject() {
         const name = document.getElementById('new-subj-name').value.trim();
@@ -2556,7 +2561,7 @@ let audioCtx = null;
       if(item.fileName)alert('Formulir terisi. Untuk mempertahankan file lama, jangan pilih file baru. Jika ingin mengganti lampiran, pilih file baru sebelum menyimpan.');
       document.getElementById('task-title').scrollIntoView({behavior:'smooth',block:'center'});
     }
-    function deleteTeacherTask(id,kind){if(!confirm('Hapus tugas/materi ini?'))return; if(kind==='task')teacherTasks=teacherTasks.filter(t=>t.id!==id);else teacherMaterials=teacherMaterials.filter(t=>t.id!==id);saveTaskCollections();renderTeacherTasks();renderStudentTasks();}
+    function deleteTeacherTask(id,kind){if(!confirm('Hapus tugas/materi ini?'))return; if(kind==='task')teacherTasks=teacherTasks.filter(t=>t.id!==id);else teacherMaterials=teacherMaterials.filter(t=>t.id!==id);saveTaskCollections();renderTeacherTasks();renderStudentTasks();if(typeof renderDedicatedMaterialList==='function')renderDedicatedMaterialList();if(typeof window.renderSavedMaterials==='function')window.renderSavedMaterials();}
     function moveSubject(id,dir){const i=subjects.findIndex(s=>s.id===id);const j=i+dir;if(i<0||j<0||j>=subjects.length)return;[subjects[i],subjects[j]]=[subjects[j],subjects[i]];subjects.forEach((s,n)=>s.position=n);saveSubjects();renderTeacherSubjectTable();renderStudentDashboard();}
 
     function exportResultsImage(){
@@ -2564,7 +2569,7 @@ let audioCtx = null;
       const rows=[...results].sort((a,b)=>Number(a.timestamp||0)-Number(b.timestamp||0));
       const canvas=document.createElement('canvas'),w=1400,rowH=54,top=230;canvas.width=w;canvas.height=top+rows.length*rowH+70;
       const c=canvas.getContext('2d');c.fillStyle='#f8fafc';c.fillRect(0,0,w,canvas.height);c.fillStyle='#0f172a';c.fillRect(0,0,w,155);
-      const logoImg=new Image();logoImg.onload=()=>{try{c.drawImage(logoImg,45,18,90,90)}catch(e){}};logoImg.src=CAMSTUDY_LOGO_DATA;c.fillStyle='#fff';c.font='bold 44px Arial';c.fillText('CAMSTUDY',155,65);c.font='bold 30px Arial';c.fillText('REKAP NILAI SISWA',55,112);c.font='18px Arial';c.fillText('Tanggal unduh: '+new Date().toLocaleString('id-ID'),55,143);
+      const logoImg=new Image();logoImg.onload=()=>{try{c.drawImage(logoImg,45,18,90,90)}catch(e){}};logoImg.src=CAMSTUDY_LOGO_DATA;c.fillStyle='#fff';c.font='bold 40px Arial';c.fillText('CAMSTUDY',160,58);c.font='bold 28px Arial';c.fillText('REKAP NILAI SISWA',160,100);c.font='17px Arial';c.fillText('Tanggal unduh: '+new Date().toLocaleString('id-ID'),160,133);
       c.fillStyle='#1e293b';c.font='bold 19px Arial';const headers=['No','Nama Siswa','Mata Pelajaran','Nilai','Tanggal Pengerjaan','Jam'];const xs=[50,125,430,900,1010,1240];headers.forEach((h,i)=>c.fillText(h,xs[i],205));
       rows.forEach((r,i)=>{const y=top+i*rowH;c.fillStyle=i%2?'#e2e8f0':'#fff';c.fillRect(35,y,w-70,rowH);c.fillStyle='#0f172a';c.font='18px Arial';const dt=r.timestamp?new Date(Number(r.timestamp)):null;[String(i+1),String(r.name||'').slice(0,26),String(r.subject||'').slice(0,28),String(r.score??''),r.date|| (dt?dt.toLocaleDateString('id-ID'):'-'),r.time||(dt?dt.toLocaleTimeString('id-ID'):'-')].forEach((v,j)=>c.fillText(v,xs[j],y+33));});
       c.fillStyle='#64748b';c.font='15px Arial';c.fillText('Dokumen rekap resmi • CAMSTUDY',50,canvas.height-25);const a=document.createElement('a');a.download='Rekap Nilai.png';const saveImage=()=>{a.href=canvas.toDataURL('image/png');a.click();};const logo=new Image();logo.onload=()=>{try{c.drawImage(logo,45,18,90,90)}catch(e){}saveImage();};logo.onerror=saveImage;logo.src=CAMSTUDY_LOGO_DATA;
@@ -2642,7 +2647,8 @@ let audioCtx = null;
  function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
  window.clearDedicatedMaterial=function(){['material-title','material-teacher','material-content','material-file'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});};
  window.refreshDedicatedMaterialSubjects=function(){const sel=document.getElementById('material-subject');if(!sel)return;const old=sel.value;const arr=typeof subjects!=='undefined'&&Array.isArray(subjects)?subjects:(Array.isArray(window.subjects)?window.subjects:[]);sel.innerHTML='<option value="">Pilih mata pelajaran</option>'+arr.map(x=>{const name=x.name||x.title||x.subject||'Mapel';const id=x.id||x.subjectId||name;const icon=typeof subjectEmoji==='function'?subjectEmoji(x.icon,name):(x.icon||'📘');return `<option value="${esc(id)}">${esc(icon)} ${esc(name)}</option>`;}).join('');if(old)sel.value=old;};
- function renderSavedMaterials(){const box=document.getElementById('dedicated-material-list');if(!box)return;const arr=typeof teacherMaterials!=='undefined'&&Array.isArray(teacherMaterials)?teacherMaterials:(Array.isArray(window.teacherMaterials)?window.teacherMaterials:[]);box.innerHTML='<h3>Materi yang sudah ditambahkan</h3>'+(arr.length?arr.slice().reverse().map(m=>`<article class="glass-panel" style="padding:14px;margin:10px 0"><strong>${esc(m.title)}</strong><p>${esc(m.subject||'Mapel')} • ${esc(semLabels[m.semester]||m.semester||'')}</p><p>Guru: ${esc(m.teacher||'Guru')}</p><p style="white-space:pre-wrap">${esc(m.description||'')}</p>${m.fileData?`<a href="${m.fileData}" download="${esc(m.fileName||'materi')}">Buka/unduh ${esc(m.fileName||'dokumen')}</a>`:''}</article>`).join(''):'<p>Belum ada materi tersimpan.</p>');}
+ function renderSavedMaterials(){const box=document.getElementById('dedicated-material-list');if(!box)return;const arr=typeof teacherMaterials!=='undefined'&&Array.isArray(teacherMaterials)?teacherMaterials:(Array.isArray(window.teacherMaterials)?window.teacherMaterials:[]);box.innerHTML='<h3>Materi yang sudah ditambahkan</h3>'+(arr.length?arr.slice().reverse().map(m=>`<article class="glass-panel" style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;padding:14px;margin:10px 0"><div><strong>${esc(m.title)}</strong><p>${esc(m.subject||'Mapel')} • ${esc(semLabels[m.semester]||m.semester||'')}</p><p>Guru: ${esc(m.teacher||'Guru')}</p><p style="white-space:pre-wrap">${esc(m.description||'')}</p>${m.fileData?`<a href="${m.fileData}" download="${esc(m.fileName||'materi')}">Buka/unduh ${esc(m.fileName||'dokumen')}</a>`:''}</div><button type="button" class="btn btn-danger" onclick="deleteTeacherTask('${m.id}','material')"><i class="fa-solid fa-trash"></i> Hapus materi</button></article>`).join(''):'<p>Belum ada materi tersimpan.</p>');}
+ window.renderSavedMaterials=renderSavedMaterials;
  window.saveDedicatedMaterial=function(){
   const subjectSel=document.getElementById('material-subject'),sem=document.getElementById('material-semester'),title=document.getElementById('material-title'),teacher=document.getElementById('material-teacher'),content=document.getElementById('material-content'),fileInput=document.getElementById('material-file'),status=document.getElementById('material-save-status');
   const subjectId=subjectSel?.value;const subject=typeof subjects!=='undefined'&&Array.isArray(subjects)?subjects.find(x=>String(x.id||x.subjectId||x.name)===String(subjectId)):null;const subjectName=subject?.name||subjectSel?.selectedOptions?.[0]?.textContent?.replace(/^\S+\s+/,'')||'';
@@ -2650,7 +2656,7 @@ let audioCtx = null;
   const finish=(fileData='',fileName='')=>{try{if(typeof teacherMaterials==='undefined'||!Array.isArray(teacherMaterials))window.teacherMaterials=[];const mats=typeof teacherMaterials!=='undefined'&&Array.isArray(teacherMaterials)?teacherMaterials:window.teacherMaterials;const record={id:'material_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),kind:'material',subjectId,subject:subjectName,semester:sem.value,title:title.value.trim(),teacher:teacher.value.trim()||((typeof currentTeacher!=='undefined'&&(currentTeacher?.displayName||currentTeacher?.username))||'Guru'),author:teacher.value.trim()||'Guru',description:content.value.trim(),instructions:'',fileData,fileName,createdAt:Date.now(),updatedAt:Date.now()};mats.push(record);if(typeof saveTaskCollections==='function')saveTaskCollections();else localStorage.setItem('asts_materials_v1',JSON.stringify(mats));if(typeof renderTeacherTasks==='function')renderTeacherTasks();if(typeof renderStudentTasks==='function')renderStudentTasks();renderSavedMaterials();window.clearDedicatedMaterial();if(status)status.textContent='Materi tersimpan pada perangkat. Gunakan “Sinkronkan ke Server” untuk membagikannya ke perangkat lain.';alert('Materi berhasil disimpan. Periksa daftar materi dan dashboard siswa.');}catch(e){console.error('Gagal menyimpan materi CAMSTUDY:',e);alert('Materi belum berhasil disimpan: '+(e.message||'kesalahan penyimpanan'));}};
   const f=fileInput?.files?.[0];if(f){if(f.size>5*1024*1024){alert('Ukuran lampiran maksimal 5 MB.');return;}const rd=new FileReader();rd.onload=()=>finish(String(rd.result||''),f.name);rd.onerror=()=>alert('File tidak dapat dibaca. Coba pilih file lain.');rd.readAsDataURL(f);}else finish();
  };
- function refreshSemesterSelectLabels(){const icons=getIcons();['material-semester','task-semester','ai-semester-select','manage-semester','student-material-semester'].forEach(id=>{const sel=document.getElementById(id);if(!sel)return;Array.from(sel.options).forEach(o=>{const k=o.value;if(!semLabels[k])return;const prefix=id==='student-material-semester'?'Kelas '+k.match(/kelas(\d+)/)?.[1]+' • Semester '+(k.endsWith('_s1')?'1':'2'):id==='task-semester'||id==='manage-semester'?'Kelas '+k.match(/kelas(\d+)/)?.[1]+' • Semester '+(k.endsWith('_s1')?'1':'2'):semLabels[k];o.textContent=(icons[k]||'📘')+' '+prefix;});});}
+ function refreshSemesterSelectLabels(){const icons=getIcons();['material-semester','task-semester','ai-semester-select','manage-semester','student-material-semester'].forEach(id=>{const sel=document.getElementById(id);if(!sel)return;Array.from(sel.options).forEach(o=>{const k=o.value;if(!semLabels[k])return;const prefix=id==='material-semester'?'MATERI • KELAS '+k.match(/kelas(\d+)/)?.[1]+' SEMESTER '+(k.endsWith('_s1')?'1':'2'):id==='student-material-semester'||id==='task-semester'||id==='manage-semester'?'Kelas '+k.match(/kelas(\d+)/)?.[1]+' • Semester '+(k.endsWith('_s1')?'1':'2'):semLabels[k];o.textContent=(icons[k]||'📘')+' '+prefix;});});}
  function setupIconSettings(){const icons=getIcons();document.querySelectorAll('.semester-icon-setting').forEach(sel=>{const k=sel.dataset.semester;sel.innerHTML=iconChoices.map(ic=>`<option value="${ic}">${ic} ${ic===icons[k]?'(dipilih)':''}</option>`).join('');sel.value=icons[k]||defaultIcons[k];sel.addEventListener('change',()=>{const next=getIcons();next[k]=sel.value;try{localStorage.setItem('camstudy_semester_icons_v1',JSON.stringify(next));}catch(e){}refreshSemesterSelectLabels();const status=document.getElementById('semester-icon-save-status');if(status)status.textContent='Ikon latihan semester berhasil diperbarui dan disimpan pada perangkat ini.';});});refreshSemesterSelectLabels();}
  function init(){window.refreshDedicatedMaterialSubjects();renderSavedMaterials();setupIconSettings();}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
