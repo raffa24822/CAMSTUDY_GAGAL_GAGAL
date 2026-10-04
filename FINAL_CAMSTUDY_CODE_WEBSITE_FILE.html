@@ -554,7 +554,7 @@
             </div>
             
         <h1 style="font-size: 28px; margin-top: 6px;">Belajar Hari Ini, Raih Mimpi Esok</h1>
-            <p style="margin-top: 4px;">Halo, calon hebat! Pilih akses siswa untuk belajar, atau akses guru untuk mengelola materi dan soal.</p><details style="margin:10px 0;text-align:left;font-size:12px;color:var(--text-muted)"><summary style="cursor:pointer;font-weight:700">Panduan singkat masuk (bisa dibuka kapan saja)</summary><p style="padding-top:8px;line-height:1.7">Siswa: pilih avatar, masukkan nama, lalu masuk. Guru: pilih Dashboard Guru, masukkan nama pengguna dan password yang dikonfigurasi pengelola.</p></details>
+            <p style="margin-top: 4px;">Halo, calon hebat! Pilih akses siswa untuk belajar, atau akses guru untuk mengelola materi dan soal.</p><details style="margin:10px 0;text-align:left;font-size:12px;color:var(--text-muted)"><summary style="cursor:pointer;font-weight:700">Panduan singkat masuk (bisa dibuka kapan saja)</summary><p style="padding-top:8px;line-height:1.7">Siswa: pilih avatar dan gunakan nama panggilan atau nama samaran saja. Jangan gunakan nama asli atau nama lengkap, dan jangan masukkan informasi pribadi. Lalu tekan Masuk. Guru: pilih Dashboard Guru, masukkan nama pengguna dan password yang dikonfigurasi pengelola.</p></details>
         </div>
         <div style="text-align:center;margin:0 0 16px;color:var(--text-muted);font-size:12px"><i class="fa-solid fa-cloud-check"></i> Koneksi server mengikuti link portal secara otomatis</div>
         <div class="role-selector">
@@ -577,8 +577,9 @@
                 <div class="avatar-opt" onclick="selectAvatar('🐉', this)">🐉</div>
                 <div class="avatar-opt" onclick="selectAvatar('🎨', this)">🎨</div><div class="avatar-opt" onclick="selectAvatar('🐼', this)">🐼</div><div class="avatar-opt" onclick="selectAvatar('🐯', this)">🐯</div><div class="avatar-opt" onclick="selectAvatar('🐸', this)">🐸</div><div class="avatar-opt" onclick="selectAvatar('🦄', this)">🦄</div><div class="avatar-opt" onclick="selectAvatar('🦋', this)">🦋</div><div class="avatar-opt" onclick="selectAvatar('🌙', this)">🌙</div><div class="avatar-opt" onclick="selectAvatar('🌈', this)">🌈</div><div class="avatar-opt" onclick="selectAvatar('🐺', this)">🐺</div><div class="avatar-opt" onclick="selectAvatar('🐧', this)">🐧</div>
             </div>
-            <label style="font-size: 13px; font-weight: 700; color: var(--text-muted);">Nama Lengkap Siswa</label>
-            <input type="text" id="input-nama-siswa" placeholder="Masukkan nama lengkap" autocomplete="name">
+            <label style="font-size: 13px; font-weight: 700; color: var(--text-muted);">Nama Panggilan / Samaran</label>
+            <input type="text" id="input-nama-siswa" placeholder="Masukkan nama panggilan atau samaran" autocomplete="off" aria-describedby="student-name-privacy-note">
+            <p id="student-name-privacy-note" style="font-size:12px;line-height:1.6;color:#b45309;background:rgba(251,191,36,.13);border:1px solid rgba(217,119,6,.35);border-radius:10px;padding:10px;margin:8px 0 12px"><b>Catatan privasi:</b> Jangan gunakan nama asli atau nama lengkap. Gunakan nama panggilan/nama samaran dan jangan masukkan informasi pribadi.</p>
             <button class="btn" style="width: 100%;" onclick="loginSiswa()">
                 Masuk ke Dashboard Ujian <i class="fa-solid fa-arrow-right"></i>
             </button>
@@ -1508,7 +1509,7 @@ let audioCtx = null;
     }
     async function loginSiswa() {
         const name=document.getElementById('input-nama-siswa').value.trim();
-        if(!name)return alert('Silakan masukkan nama lengkap.');
+        if(!name)return alert('Silakan masukkan nama panggilan atau nama samaran.');
         playClickSound();
         let user=studentAccounts.find(u=>String(u.name).trim().toLowerCase()===name.toLowerCase());
         if(!user){
@@ -1553,7 +1554,7 @@ let audioCtx = null;
     function renderStudentDashboard() {
         const grid = document.getElementById('student-subject-grid');
         grid.innerHTML = '';
-        subjects.filter(subj=>!document.getElementById('student-subject-search')?.value||subj.name.toLowerCase().includes(document.getElementById('student-subject-search').value.toLowerCase())).sort((a,b)=>(Number(a.position||0)-Number(b.position||0))).forEach(subj => {
+        subjects.filter(subj=>!document.getElementById('student-subject-search')?.value||subj.name.toLowerCase().includes(document.getElementById('student-subject-search').value.toLowerCase())).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'id',{sensitivity:'base'})).forEach(subj => {
             const card = document.createElement('div');
             const isDone = currentStudent.completedSubjects.includes(subj.id);
             card.className = `subject-card ${subj.active ? 'active-card' : 'disabled-card'}`;
@@ -2008,7 +2009,7 @@ let audioCtx = null;
     function renderTeacherSubjectTable() {
         const body = document.getElementById('table-teacher-subjects');
         body.innerHTML = '';
-        subjects.forEach(subj => {
+        subjects.slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'id',{sensitivity:'base'})).forEach(subj => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td><strong><i class="fa-solid ${subj.icon||'fa-book-open'}" aria-hidden="true" style="color:#fff;font-size:1.05em;margin-right:7px"></i> ${subj.name}</strong></td>
@@ -2022,7 +2023,7 @@ let audioCtx = null;
                     </label>
                 </td>
                 <td>
-                    <button class="btn btn-secondary" style="padding:6px 10px;font-size:12px" onclick="editSubject('${subj.id}')"><i class="fa-solid fa-pen"></i> Edit</button> <button class="btn btn-secondary" style="padding:6px 10px;font-size:12px" onclick="moveSubject('${subj.id}',-1)">↑</button> <button class="btn btn-secondary" style="padding:6px 10px;font-size:12px" onclick="moveSubject('${subj.id}',1)">↓</button> <button class="btn btn-danger" style="padding:6px 12px; font-size:12px;" onclick="deleteSubject('${subj.id}')"><i class="fa-solid fa-trash"></i></button>
+                    <button class="btn btn-secondary" style="padding:6px 10px;font-size:12px" onclick="editSubject('${subj.id}')"><i class="fa-solid fa-pen"></i> Edit</button> <button class="btn btn-danger" style="padding:6px 12px; font-size:12px;" onclick="deleteSubject('${subj.id}')"><i class="fa-solid fa-trash"></i></button>
                 </td>
             `;
             body.appendChild(tr);
@@ -2036,7 +2037,7 @@ let audioCtx = null;
             body.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">Belum ada siswa yang login.</td></tr>`;
             return;
         }
-        studentAccounts.forEach(u => {
+        studentAccounts.slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'id',{sensitivity:'base'})).forEach(u => {
             const count = Number(u.completedQuestionCount) || 0;
             const rank = getRankInfo(count);
             const totalV = u.totalViolations || 0;
@@ -2107,7 +2108,7 @@ let audioCtx = null;
         const select = document.getElementById('select-subject-manage');
         const previousId = preferredId || select.value;
         select.innerHTML = '';
-        subjects.forEach(s => {
+        subjects.slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'id',{sensitivity:'base'})).forEach(s => {
             const opt = document.createElement('option');
             opt.value = s.id;
             opt.innerText = `${subjectEmoji(s.icon,s.name)} ${s.name} (${Object.values(s.questionSets||{kelas10_s1:s.questions||[]}).reduce((n,a)=>n+(Array.isArray(a)?a.length:0),0)} Soal)`;
@@ -2145,7 +2146,7 @@ let audioCtx = null;
         });
     }
     function populateAISubjectSelect(preferred){
-    ['ai-subject-select','ai-modal-subject'].forEach(id=>{const e=document.getElementById(id);if(!e)return;const old=e.value||preferred||'';e.innerHTML=subjects.map(s=>`<option value="${s.id}">${subjectEmoji(s.icon,s.name)} ${s.name}</option>`).join('');if(subjects.some(s=>s.id===old))e.value=old;});
+    ['ai-subject-select','ai-modal-subject'].forEach(id=>{const e=document.getElementById(id);if(!e)return;const old=e.value||preferred||'';e.innerHTML=subjects.slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'id',{sensitivity:'base'})).map(s=>`<option value="${s.id}">${subjectEmoji(s.icon,s.name)} ${s.name}</option>`).join('');if(subjects.some(s=>s.id===old))e.value=old;});
     }
     function openAISoal(){populateAISubjectSelect(document.getElementById('select-subject-manage').value);document.getElementById('ai-modal-input').value='';document.getElementById('ai-modal-preview').textContent='';document.getElementById('modal-ai-soal').classList.add('active');}
     function closeAISoal(){document.getElementById('modal-ai-soal').classList.remove('active');}
@@ -2391,8 +2392,7 @@ let audioCtx = null;
             body.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px;">Belum ada nilai siswa.</td></tr>`;
             return;
         }
-        results.slice().reverse().forEach((r, reverseIndex) => {
-            const originalIndex = results.length - 1 - reverseIndex;
+        results.map((r, originalIndex)=>({r, originalIndex})).sort((a,b)=>String(a.r.name||'').localeCompare(String(b.r.name||''),'id',{sensitivity:'base'}) || String(a.r.subject||'').localeCompare(String(b.r.subject||''),'id',{sensitivity:'base'})).forEach(({r, originalIndex}, reverseIndex) => {
             const tr = document.createElement('tr');
             const answerCount = Array.isArray(r.answers) ? r.answers.length : 0;
             tr.innerHTML = `
@@ -2445,14 +2445,14 @@ let audioCtx = null;
         document.getElementById('modal-result-detail')?.classList.remove('active');
     }
 
-    function exportAttendanceCSV(){const rows=[['No','Nama Siswa','Status Kehadiran','Status Pengerjaan','Total Pelanggaran','Terakhir Aktif','Tanggal Rekap']];studentAccounts.forEach((u,i)=>rows.push([i+1,u.name||'',u.isOnline?'Hadir / Online':'Offline',u.readiness||'Offline',Number(u.totalViolations||u.violations||0),u.lastSeen?new Date(u.lastSeen).toLocaleString('id-ID'):'-',new Date().toLocaleDateString('id-ID')]));if(rows.length===1)return alert('Belum ada data akun siswa untuk direkap.');const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const blob=new Blob(['\ufeff'+rows.map(r=>r.map(q).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Rekap Absen.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
-    function exportAttendanceImage(){if(!studentAccounts.length)return alert('Belum ada data akun siswa untuk direkap.');const rows=studentAccounts.slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));const w=1200,rh=48,top=190,c=document.createElement('canvas');c.width=w;c.height=top+rows.length*rh+60;const x=c.getContext('2d');x.fillStyle='#f8fafc';x.fillRect(0,0,w,c.height);x.fillStyle='#12345a';x.fillRect(0,0,w,135);const im=new Image();im.onload=()=>{try{x.drawImage(im,35,20,90,90)}catch(e){}};im.src=CAMSTUDY_LOGO_DATA;x.fillStyle='#fff';x.font='bold 36px Arial';x.fillText('CAMSTUDY',145,65);x.font='bold 25px Arial';x.fillText('REKAP KEHADIRAN SISWA',145,105);x.fillStyle='#0f172a';x.font='bold 17px Arial';['No','Nama Siswa','Kehadiran','Status','Pelanggaran','Terakhir Aktif'].forEach((v,i)=>x.fillText(v,[35,100,430,610,820,960][i],170));rows.forEach((u,i)=>{let y=top+i*rh;x.fillStyle=i%2?'#e2e8f0':'#fff';x.fillRect(25,y,w-50,rh);x.fillStyle='#0f172a';x.font='16px Arial';[String(i+1),String(u.name||'-').slice(0,28),u.isOnline?'Online':'Offline',String(u.readiness||'Offline'),String(Number(u.totalViolations||u.violations||0)),u.lastSeen?new Date(u.lastSeen).toLocaleString('id-ID'):'-'].forEach((v,j)=>x.fillText(v,[35,100,430,610,820,960][j],y+30));});const a=document.createElement('a');a.download='Rekap Absen.png';a.href=c.toDataURL('image/png');a.click();}
+    function exportAttendanceCSV(){const rows=[['No','Nama Siswa','Status Kehadiran','Status Pengerjaan','Total Pelanggaran','Terakhir Aktif','Tanggal Rekap']];studentAccounts.slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'id',{sensitivity:'base'})).forEach((u,i)=>rows.push([i+1,u.name||'',u.isOnline?'Hadir / Online':'Offline',u.readiness||'Offline',Number(u.totalViolations||u.violations||0),u.lastSeen?new Date(u.lastSeen).toLocaleString('id-ID'):'-',new Date().toLocaleDateString('id-ID')]));if(rows.length===1)return alert('Belum ada data akun siswa untuk direkap.');const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const blob=new Blob(['\ufeff'+rows.map(r=>r.map(q).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Rekap Absen.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+    function exportAttendanceImage(){if(!studentAccounts.length)return alert('Belum ada data akun siswa untuk direkap.');const rows=studentAccounts.slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'id',{sensitivity:'base'}));const w=1200,rh=48,top=190,c=document.createElement('canvas');c.width=w;c.height=top+rows.length*rh+60;const x=c.getContext('2d');x.fillStyle='#f8fafc';x.fillRect(0,0,w,c.height);x.fillStyle='#12345a';x.fillRect(0,0,w,135);const im=new Image();im.onload=()=>{try{x.drawImage(im,35,20,90,90)}catch(e){}};im.src=CAMSTUDY_LOGO_DATA;x.fillStyle='#fff';x.font='bold 36px Arial';x.fillText('CAMSTUDY',145,65);x.font='bold 25px Arial';x.fillText('REKAP KEHADIRAN SISWA',145,105);x.fillStyle='#0f172a';x.font='bold 17px Arial';['No','Nama Siswa','Kehadiran','Status','Pelanggaran','Terakhir Aktif'].forEach((v,i)=>x.fillText(v,[35,100,430,610,820,960][i],170));rows.forEach((u,i)=>{let y=top+i*rh;x.fillStyle=i%2?'#e2e8f0':'#fff';x.fillRect(25,y,w-50,rh);x.fillStyle='#0f172a';x.font='16px Arial';[String(i+1),String(u.name||'-').slice(0,28),u.isOnline?'Online':'Offline',String(u.readiness||'Offline'),String(Number(u.totalViolations||u.violations||0)),u.lastSeen?new Date(u.lastSeen).toLocaleString('id-ID'):'-'].forEach((v,j)=>x.fillText(v,[35,100,430,610,820,960][j],y+30));});const a=document.createElement('a');a.download='Rekap Absen.png';a.href=c.toDataURL('image/png');a.click();}
 
     function exportCSV() {
         if (!results.length) return alert('Belum ada data nilai.');
         const quote = value => '"' + String(value ?? '').replace(/"/g, '""') + '"';
         const rows = [['No.', 'Nama Siswa', 'Mata Pelajaran', 'Nilai', 'Durasi Pengerjaan', 'Tanggal Ujian', 'Jam Selesai']];
-        [...results].sort((a,b)=>Number(a.timestamp||0)-Number(b.timestamp||0)).forEach((r,i)=>rows.push([
+        [...results].sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'id',{sensitivity:'base'}) || String(a.subject||'').localeCompare(String(b.subject||''),'id',{sensitivity:'base'})).forEach((r,i)=>rows.push([
             i+1, r.name||'', r.subject||'', r.score??'', r.durationText || (Number.isFinite(Number(r.durationSeconds)) ? `${Math.floor(Number(r.durationSeconds)/60)} menit ${Number(r.durationSeconds)%60} detik` : ''), (r.date && r.date !== '###' ? r.date : (r.timestamp ? new Date(Number(r.timestamp)).toLocaleDateString('id-ID') : '')), (r.time && r.time !== '###' ? r.time : (r.timestamp ? new Date(Number(r.timestamp)).toLocaleTimeString('id-ID') : ''))
         ]));
         const csv = '\ufeff' + rows.map(row=>row.map(quote).join(';')).join('\r\n');
@@ -2486,9 +2486,9 @@ let audioCtx = null;
           showSyncResult(true,'Tugas, materi, dan pengumpulan berhasil disimpan ke server.');
         }catch(e){if(status)status.textContent='Gagal menyimpan ke server: '+e.message+'. Data lokal tetap ada.';showSyncResult(false,'Gagal menyimpan data ke server: '+e.message);}
     }
-    function populateTaskSubjects(){['task-subject','task-filter-subject'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const old=el.value;el.innerHTML=id==='task-filter-subject'?'<option value="all">Semua mapel</option>':'';subjects.forEach(s=>{const o=document.createElement('option');o.value=s.id;o.textContent=subjectEmoji(s.icon,s.name)+' '+s.name;el.appendChild(o)});if([...el.options].some(o=>o.value===old))el.value=old;});}
+    function populateTaskSubjects(){['task-subject','task-filter-subject'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const old=el.value;el.innerHTML=id==='task-filter-subject'?'<option value="all">Semua mapel</option>':'';subjects.slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'id',{sensitivity:'base'})).forEach(s=>{const o=document.createElement('option');o.value=s.id;o.textContent=subjectEmoji(s.icon,s.name)+' '+s.name;el.appendChild(o)});if([...el.options].some(o=>o.value===old))el.value=old;});}
     async function saveTeacherTask(){const kind=teacherContentMode,subjectId=document.getElementById('task-subject').value,title=document.getElementById('task-title').value.trim();if(!title)return alert('Isi judul terlebih dahulu.');const file=document.getElementById('task-file').files[0];if(file&&file.size>1500000)return alert('File maksimal 1,5 MB agar aman untuk sinkronisasi.');const save=(fileData='',fileName='')=>{const rec={id:'task_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),kind,subjectId,semester:document.getElementById('task-semester')?.value||'kelas10_s1',subject:(subjects.find(s=>s.id===subjectId)||{}).name||'Umum',title,teacher:document.getElementById('task-teacher').value.trim()||(currentTeacher?.displayName||currentTeacher?.username||'Guru'),author:document.getElementById('task-author').value.trim()||(currentTeacher?.displayName||currentTeacher?.username||'Guru'),deadline:kind==='task'?document.getElementById('task-deadline').value:'',description:document.getElementById('task-description').value.trim(),instructions:document.getElementById('task-instructions').value.trim(),fileData,fileName,createdAt:Date.now(),updatedAt:Date.now()};const saveBtn=document.querySelector('#tab-tugas-harian button[onclick="saveTeacherTask()"]');const editId=saveBtn?.dataset.editId;const target=kind==='task'?teacherTasks:teacherMaterials;if(editId){const idx=target.findIndex(x=>x.id===editId);if(idx>=0){rec.id=editId;rec.createdAt=target[idx].createdAt||rec.createdAt;if(!fileData){rec.fileData=target[idx].fileData||'';rec.fileName=target[idx].fileName||'';}target[idx]=rec;}else target.push(rec);if(saveBtn){delete saveBtn.dataset.editId;saveBtn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> <span id="save-content-label">Simpan '+(teacherContentMode==='material'?'Materi':'Tugas')+'</span>';}}else target.push(rec);saveTaskCollections();renderTeacherTasks();renderStudentTasks();['task-title','task-description','task-instructions','task-deadline','task-file'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});alert(kind==='material'?'Materi berhasil disimpan dan tersedia di dashboard siswa.':'Tugas berhasil disimpan.');};if(file){const reader=new FileReader();reader.onload=()=>save(String(reader.result),file.name);reader.readAsDataURL(file);}else save();}
-    function renderTeacherTasks(){const box=document.getElementById('teacher-task-list'),subBox=document.getElementById('teacher-submissions-list');if(!box)return;const kind=teacherContentMode,sid=document.getElementById('task-filter-subject')?.value||'all';const list=[...teacherTasks,...teacherMaterials].filter(t=>(t.kind||'material')===kind&&(sid==='all'||t.subjectId===sid)).sort((a,b)=>b.createdAt-a.createdAt);box.innerHTML=list.length?list.map(t=>`<article class="glass-panel" style="padding:14px;margin:10px 0"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><strong>${escapeReviewText(t.title)}</strong><span class="badge badge-primary">${t.kind==='task'?'Tugas harian':'Materi pelajaran'}</span></div><p>${escapeReviewText(t.subject||'Umum')} • ${escapeReviewText(SEMESTER_LABELS[t.semester]||'Kelas 10 • Semester 1')} • Guru: ${escapeReviewText(t.teacher)} • Penyusun: ${escapeReviewText(t.author)}</p><p>${escapeReviewText(t.description||'')}</p><p>${escapeReviewText(t.instructions||'')}</p>${t.deadline?'<p><strong>Deadline:</strong> '+escapeReviewText(new Date(t.deadline).toLocaleString('id-ID'))+'</p>':''}${t.fileData?`<a href="${t.fileData}" download="${escapeReviewText(t.fileName||'materi')}">Buka/unduh ${escapeReviewText(t.fileName||'dokumen')}</a>`:''}<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${t.kind==='task'?`<button class="btn btn-secondary" onclick="viewTaskSubmissions('${t.id}')">Lihat pengumpulan</button>`:''}<button class="btn btn-secondary" onclick="editTeacherTask('${t.id}')">Edit</button><button class="btn btn-danger" onclick="deleteTeacherTask('${t.id}','${t.kind}')">Hapus</button></div></article>`).join(''):(kind==='task'?'<p>Belum ada tugas harian.</p>':'<p>Belum ada materi pelajaran.</p>');if(subBox&&!subBox.dataset.opened)subBox.innerHTML='<p>Pilih “Lihat pengumpulan” pada tugas untuk menampilkan kiriman siswa.</p>';}
+    function renderTeacherTasks(){const box=document.getElementById('teacher-task-list'),subBox=document.getElementById('teacher-submissions-list');if(!box)return;const kind=teacherContentMode,sid=document.getElementById('task-filter-subject')?.value||'all';const list=[...teacherTasks,...teacherMaterials].filter(t=>(t.kind||'material')===kind&&(sid==='all'||t.subjectId===sid)).sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''),'id',{sensitivity:'base'}));box.innerHTML=list.length?list.map(t=>`<article class="glass-panel" style="padding:14px;margin:10px 0"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><strong>${escapeReviewText(t.title)}</strong><span class="badge badge-primary">${t.kind==='task'?'Tugas harian':'Materi pelajaran'}</span></div><p>${escapeReviewText(t.subject||'Umum')} • ${escapeReviewText(SEMESTER_LABELS[t.semester]||'Kelas 10 • Semester 1')} • Guru: ${escapeReviewText(t.teacher)} • Penyusun: ${escapeReviewText(t.author)}</p><p>${escapeReviewText(t.description||'')}</p><p>${escapeReviewText(t.instructions||'')}</p>${t.deadline?'<p><strong>Deadline:</strong> '+escapeReviewText(new Date(t.deadline).toLocaleString('id-ID'))+'</p>':''}${t.fileData?`<a href="${t.fileData}" download="${escapeReviewText(t.fileName||'materi')}">Buka/unduh ${escapeReviewText(t.fileName||'dokumen')}</a>`:''}<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${t.kind==='task'?`<button class="btn btn-secondary" onclick="viewTaskSubmissions('${t.id}')">Lihat pengumpulan</button>`:''}<button class="btn btn-secondary" onclick="editTeacherTask('${t.id}')">Edit</button><button class="btn btn-danger" onclick="deleteTeacherTask('${t.id}','${t.kind}')">Hapus</button></div></article>`).join(''):(kind==='task'?'<p>Belum ada tugas harian.</p>':'<p>Belum ada materi pelajaran.</p>');if(subBox&&!subBox.dataset.opened)subBox.innerHTML='<p>Pilih “Lihat pengumpulan” pada tugas untuk menampilkan kiriman siswa.</p>';}
     function subjectTaskIcon(subject){
         const n=String(subject||'').toLowerCase();
         if(/matematika|math/.test(n))return 'fa-calculator';
@@ -2515,7 +2515,7 @@ let audioCtx = null;
         const box=document.getElementById('student-task-list');
         const materialBox=document.getElementById('student-material-list');
         if(!box)return;
-        const all=[...teacherTasks,...teacherMaterials].sort((a,b)=>(Number(b.createdAt)||0)-(Number(a.createdAt)||0));
+        const all=[...teacherTasks,...teacherMaterials].sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''),'id',{sensitivity:'base'}));
         box.innerHTML=renderCards(all.filter(t=>t.kind==='task'));
         const chosenSemester=document.getElementById('student-material-semester')?.value||'all';
         if(materialBox)materialBox.innerHTML=renderCards(all.filter(t=>t.kind!=='task'&&(chosenSemester==='all'||(t.semester||'kelas10_s1')===chosenSemester)));
@@ -2567,7 +2567,7 @@ let audioCtx = null;
 
     function exportResultsImage(){
       if(!results.length)return alert('Belum ada data nilai.');
-      const rows=[...results].sort((a,b)=>Number(a.timestamp||0)-Number(b.timestamp||0));
+      const rows=[...results].sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'id',{sensitivity:'base'}) || String(a.subject||'').localeCompare(String(b.subject||''),'id',{sensitivity:'base'}));
       const canvas=document.createElement('canvas'),w=1400,rowH=54,top=230;canvas.width=w;canvas.height=top+rows.length*rowH+70;
       const c=canvas.getContext('2d');c.fillStyle='#f8fafc';c.fillRect(0,0,w,canvas.height);c.fillStyle='#0f172a';c.fillRect(0,0,w,155);
       c.fillStyle='#334155';c.fillRect(38,17,96,96);c.fillStyle='#64748b';c.fillRect(31,24,96,96);c.fillStyle='#ffffff';c.fillRect(45,17,82,82);const logoImg=new Image();logoImg.onload=()=>{try{c.drawImage(logoImg,52,24,68,68)}catch(e){}};logoImg.src=CAMSTUDY_LOGO_DATA;c.fillStyle='#fff';c.font='bold 40px Arial';c.fillText('CAMSTUDY',160,58);c.font='bold 28px Arial';c.fillText('REKAP NILAI SISWA',160,100);c.font='17px Arial';c.fillText('Tanggal unduh: '+new Date().toLocaleString('id-ID'),160,133);
@@ -2632,7 +2632,7 @@ let audioCtx = null;
       try{if(sessionStorage.getItem('camstudy_guide_seen_session'))return;if(document.getElementById('camstudy-first-guide-modal'))return;
       const modal=document.createElement('div');modal.id='camstudy-first-guide-modal';modal.className='modal-overlay active';modal.style.zIndex='100002';
       const logo=document.querySelector('.camstudy-brand-logo')?.src||'';
-      modal.innerHTML=`<div class="modal-body" role="dialog" aria-modal="true" aria-labelledby="camstudy-guide-title" style="max-width:500px"><div style="text-align:center;margin-bottom:12px"><img src="${logo}" alt="Logo CAMSTUDY" style="width:70px;height:70px;object-fit:contain;background:#fff;border-radius:14px;padding:4px"></div><h3 id="camstudy-guide-title" style="text-align:center">Panduan Singkat CAMSTUDY</h3><p style="line-height:1.7">Siswa: pilih avatar, masukkan nama, lalu tekan Masuk. Guru: pilih Dashboard Guru dan masukkan nama pengguna serta password yang dikelola di server. Jangan bagikan password guru.</p><button class="btn btn-primary" style="width:100%" id="camstudy-guide-close">Mengerti, mulai</button></div>`;
+      modal.innerHTML=`<div class="modal-body" role="dialog" aria-modal="true" aria-labelledby="camstudy-guide-title" style="max-width:500px"><div style="text-align:center;margin-bottom:12px"><img src="${logo}" alt="Logo CAMSTUDY" style="width:70px;height:70px;object-fit:contain;background:#fff;border-radius:14px;padding:4px"></div><h3 id="camstudy-guide-title" style="text-align:center">Panduan Singkat CAMSTUDY</h3><p style="line-height:1.7"><b>Siswa:</b> pilih avatar dan gunakan nama panggilan atau nama samaran saja. Jangan gunakan nama asli/nama lengkap atau memasukkan informasi pribadi. Lalu tekan Masuk. <b>Guru:</b> pilih Dashboard Guru dan masukkan nama pengguna serta password yang dikelola di server. Jangan bagikan password guru.</p><button class="btn btn-primary" style="width:100%" id="camstudy-guide-close">Mengerti, mulai</button></div>`;
       document.body.appendChild(modal);modal.querySelector('#camstudy-guide-close').addEventListener('click',()=>{modal.remove();sessionStorage.setItem('camstudy_guide_seen_session','1')});
       }catch(e){console.warn('Panduan CAMSTUDY:',e)}
     }

@@ -98,7 +98,7 @@ function persist() {
 app.get('/health', (_req, res) => { res.setHeader('Cache-Control','no-store'); res.json({ status: 'ok', service: 'CAMSTUDY', time: new Date().toISOString() }); });
 app.get('/', (_req, res) => {
   res.setHeader('Cache-Control', 'no-store');
-  res.sendFile(path.join(__dirname, 'FINAL_FILE_CAMSTUDY.html'));
+  res.sendFile(path.join(__dirname, 'FINAL_CAMSTUDY_CODE_WEBSITE_FILE.html'));
 });
 app.post('/asts_kelas10/reset-users.json', auth, async (req, res) => {
   if (!req.body || req.body.confirm !== 'RESET_ALL_STUDENT_ACCOUNTS') {
@@ -206,6 +206,7 @@ app.post('/api/generate-questions', auth, async (req, res) => {
   if (material.length > 30000) return sendError(res, 413, 'Materi terlalu panjang. Batas materi adalah 30.000 karakter.');
   try {
     const response = await fetch('https://api.openai.com/v1/responses', {
+      signal: AbortSignal.timeout(45000),
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
       body: JSON.stringify({
