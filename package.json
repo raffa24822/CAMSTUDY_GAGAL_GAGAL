@@ -1,16 +1,1 @@
-{
-  "name": "final-camstudy-code-website",
-  "version": "1.0.0",
-  "private": true,
-  "description": "CAMSTUDY educational portal server",
-  "main": "FINAL_CAMSTUDY_SERVER.js",
-  "scripts": {
-    "start": "node FINAL_CAMSTUDY_SERVER.js"
-  },
-  "engines": {
-    "node": ">=18"
-  },
-  "dependencies": {
-    "express": "^4.21.2"
-  }
-}
+
